@@ -4,7 +4,7 @@ import {XRControllerModelFactory} from 'three/addons/webxr/XRControllerModelFact
 
 let camera, scene, renderer;
 
-let skinnedMesh, skeleton, bones, skeletonHelper, controllerGrip1;
+let skinnedMesh, skeleton, bones, skeletonHelper, controllerGrip1, controller1;
 const controllerModelFactory = new XRControllerModelFactory();
                         
 init();

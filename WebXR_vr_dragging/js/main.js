@@ -44,6 +44,8 @@ function init() {
     
     initSkinnedMesh();
     
+    document.body.appendChild( VRButton.createButton( renderer ) );
+    
     controller1 = renderer.xr.getController( 0 );
     controller1.addEventListener( 'selectstart', onSelectStart );
     controller1.addEventListener( 'selectend', onSelectEnd );

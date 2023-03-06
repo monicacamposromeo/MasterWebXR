@@ -262,6 +262,8 @@ function update_boxes(){
     }
 }
 
+
+
 function animate() {
     // requestAnimationFrame( animate );
     // renderer.render( scene, camera );
@@ -269,4 +271,10 @@ function animate() {
     // getIntersections(controller1);
 
     renderer.setAnimationLoop( render );
+}
+
+function render() {
+
+    renderer.render( scene, camera );
+
 }

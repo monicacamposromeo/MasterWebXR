@@ -3,14 +3,15 @@ import {VRButton} from 'three/addons/webxr/VRButton.js';
 import {XRControllerModelFactory} from 'three/addons/webxr/XRControllerModelFactory.js';
 
 let camera, scene, renderer;
-let controller1, tempMatrix, controllerGrip1;
+let controller1, controllerGrip1;
+let group;
 
 let bones;
 let boxes = [];
 let skinnedMesh, skeleton, skeletonHelper;
-const controllerModelFactory = new XRControllerModelFactory();
 
 let raycaster;
+const tempMatrix = new THREE.Matrix4();
 const pointer = new THREE.Vector2();
 let anIntersectableObject;	
 let intersectObject;
@@ -48,6 +49,7 @@ function init() {
     controller1.addEventListener( 'selectend', onSelectEnd );
     scene.add( controller1 );
     
+    const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip( 0 );
     controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
     scene.add( controllerGrip1 );
@@ -69,7 +71,7 @@ function getIntersections( controller ) {
     raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
     tempMatrix.identity().extractRotation( controller.matrixWorld );
     raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-    return raycaster.intersectObjects( group.children, false );
+    return raycaster.intersectObjects( boxes, false );
 }
 
 function initSkinnedMesh() {

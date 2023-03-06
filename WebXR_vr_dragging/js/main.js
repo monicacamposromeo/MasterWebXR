@@ -66,6 +66,9 @@ function init() {
     controller1.add( line.clone() );
     // controller2.add( line.clone() );
 
+    group = new THREE.Group();
+    scene.add( group );
+    
     initSkinnedMesh();
 
     window.addEventListener( 'pointerdown', onPointerDown );
@@ -112,7 +115,7 @@ function getIntersections( controller ) {
     raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
     tempMatrix.identity().extractRotation( controller.matrixWorld );
     raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-    return raycaster.intersectObjects( boxes, false );
+    return raycaster.intersectObjects( group.children(), false );
 }
 
 function initSkinnedMesh() {
@@ -173,8 +176,8 @@ function initSkinnedMesh() {
         object.currentIntersected = false;
         object.isIntersectable = true;
         object.bone_index = index;
-        scene.add(object);
         boxes.push(object);
+        group.add(object);
     }
 }
 
@@ -306,6 +309,7 @@ function intersectObjects( controller ) {
     if ( controller.userData.selected !== undefined ) return;
 
     const line = controller.getObjectByName( 'line' );
+    console.log(line);
     const intersections = getIntersections( controller );
 
     if ( intersections.length > 0 ) {

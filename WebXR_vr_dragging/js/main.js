@@ -44,7 +44,6 @@ function init() {
     renderer.xr.enabled = true;
     document.body.appendChild( renderer.domElement );
     
-    initSkinnedMesh();
     
     document.body.appendChild( VRButton.createButton( renderer ) );
     
@@ -67,8 +66,8 @@ function init() {
     controller1.add( line.clone() );
     // controller2.add( line.clone() );
 
-    raycaster = new THREE.Raycaster();
-        
+    initSkinnedMesh();
+
     window.addEventListener( 'pointerdown', onPointerDown );
     window.addEventListener( 'pointerup', onPointerUp );
     window.addEventListener( 'mousemove', onPointerMove );

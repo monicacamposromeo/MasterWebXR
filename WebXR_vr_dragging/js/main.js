@@ -263,8 +263,10 @@ function update_boxes(){
 }
 
 function animate() {
-    requestAnimationFrame( animate );
-    renderer.render( scene, camera );
+    // requestAnimationFrame( animate );
+    // renderer.render( scene, camera );
     
-    getIntersections(controller1);
+    // getIntersections(controller1);
+
+    renderer.setAnimationLoop( render );
 }

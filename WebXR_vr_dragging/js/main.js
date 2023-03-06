@@ -38,10 +38,10 @@ function init() {
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
     renderer.xr.enabled = true;
+    document.body.appendChild( renderer.domElement );
     window.addEventListener( 'resize', onWindowResize );
     
     initSkinnedMesh();

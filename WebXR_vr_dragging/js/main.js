@@ -43,7 +43,6 @@ function init() {
     renderer.shadowMap.enabled = true;
     renderer.xr.enabled = true;
     document.body.appendChild( renderer.domElement );
-    window.addEventListener( 'resize', onWindowResize );
     
     initSkinnedMesh();
     
@@ -58,18 +57,56 @@ function init() {
     controllerGrip1 = renderer.xr.getControllerGrip( 0 );
     controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
     scene.add( controllerGrip1 );
+
+    const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+
+    const line = new THREE.Line( geometry );
+    line.name = 'line';
+    line.scale.z = 5;
+
+    controller1.add( line.clone() );
+    // controller2.add( line.clone() );
+
+    raycaster = new THREE.Raycaster();
         
     window.addEventListener( 'pointerdown', onPointerDown );
     window.addEventListener( 'pointerup', onPointerUp );
     window.addEventListener( 'mousemove', onPointerMove );
+
+    window.addEventListener( 'resize', onWindowResize );
 }
 
 function onSelectStart(){
-    
+    const controller = event.target;
+
+    const intersections = getIntersections( controller );
+
+    if ( intersections.length > 0 ) {
+
+            const intersection = intersections[ 0 ];
+
+            const object = intersection.object;
+            object.material.emissive.b = 1;
+            controller.attach( object );
+
+            controller.userData.selected = object;
+
+    }
 }
 
 function onSelectEnd(){
-    
+    const controller = event.target;
+
+    if ( controller.userData.selected !== undefined ) {
+
+            const object = controller.userData.selected;
+            object.material.emissive.b = 0;
+            boxes.attach( object );
+
+            controller.userData.selected = undefined;
+
+    }
+
 }
 
 function getIntersections( controller ) {

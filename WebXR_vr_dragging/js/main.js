@@ -3,7 +3,7 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 
 let camera, scene, renderer;
-let controller1, controllerGrip1;
+let controller1, controllerGrip1, controller2, controllerGrip2;
 let group;
 const intersected = [];
 
@@ -52,10 +52,21 @@ function init() {
     controller1.addEventListener( 'selectend', onSelectEnd );
     scene.add( controller1 );
     
+    controller2 = renderer.xr.getController( 1 );
+    controller2.addEventListener( 'selectstart', onSelectStart );
+    controller2.addEventListener( 'selectend', onSelectEnd );
+    scene.add( controller2 );
+    
     const controllerModelFactory = new XRControllerModelFactory();
+    
     controllerGrip1 = renderer.xr.getControllerGrip( 0 );
     controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
     scene.add( controllerGrip1 );
+    
+    controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+    controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+    scene.add( controllerGrip2 );
+    
 
     const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
 
@@ -64,7 +75,7 @@ function init() {
     line.scale.z = 5;
 
     controller1.add( line.clone() );
-    // controller2.add( line.clone() );
+    controller2.add( line.clone() );
 
     group = new THREE.Group();
     scene.add( group );
@@ -78,13 +89,14 @@ function init() {
     window.addEventListener( 'resize', onWindowResize );
 }
 
-function onSelectStart(){
+function onSelectStart(event){
     const controller = event.target;
 
     const intersections = getIntersections( controller );
-
+    console.log(intersections);
     if ( intersections.length > 0 ) {
 
+            console.log("He colisionado");
             const intersection = intersections[ 0 ];
 
             const object = intersection.object;
@@ -92,18 +104,22 @@ function onSelectStart(){
             controller.attach( object );
 
             controller.userData.selected = object;
+            if(object.isIntersectable === true){
+                object.currentIntersected = true;
+                object.material.emissive.setHex(intersectObject.HexSelected);
+            }
 
     }
 }
 
-function onSelectEnd(){
+function onSelectEnd(event){
     const controller = event.target;
 
     if ( controller.userData.selected !== undefined ) {
 
             const object = controller.userData.selected;
             object.material.emissive.b = 0;
-            boxes.attach( object );
+            group.attach( object );
 
             controller.userData.selected = undefined;
 
@@ -115,7 +131,7 @@ function getIntersections( controller ) {
     raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
     tempMatrix.identity().extractRotation( controller.matrixWorld );
     raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-    return raycaster.intersectObjects( group.children(), false );
+    return raycaster.intersectObjects( group.children, false );
 }
 
 function initSkinnedMesh() {
@@ -146,6 +162,7 @@ function initSkinnedMesh() {
     
     skeleton = new THREE.Skeleton(bones);
     skinnedMesh = new THREE.SkinnedMesh( geometry, material );
+    skinnedMesh.position.z = -30;
     
     const rootBone = skeleton.bones[0];
     
@@ -161,7 +178,7 @@ function initSkinnedMesh() {
     let bone_anterior = [];
     bone_anterior['x'] = 0;
     bone_anterior['y'] = 0;
-    bone_anterior['z'] = 0;
+    bone_anterior['z'] = -30;
     for (let index in skeleton.bones){
         const material = new THREE.MeshStandardMaterial( { color: 0x00ff00 } );
         let object = new THREE.Mesh( aBoxGeometry, material );
@@ -176,6 +193,8 @@ function initSkinnedMesh() {
         object.currentIntersected = false;
         object.isIntersectable = true;
         object.bone_index = index;
+        object.castShadow = true;
+        object.receiveShadow = true;
         boxes.push(object);
         group.add(object);
     }
@@ -240,7 +259,6 @@ function onPointerDown( event ) {
     
     if (found.length) {
         intersectObject = found[0].object;
-        console.log(intersectObject);
         if(intersectObject.isIntersectable === true){
             intersectObject.currentIntersected = true;
             intersectObject.material.emissive.setHex(intersectObject.HexSelected);
@@ -289,7 +307,6 @@ function update_boxes(){
     position['x'] = intersectPoint.x;
     position['y'] = intersectPoint.y;
     position['z'] = 0;
-    console.log(position);
     for (let index in skeleton.bones){
         if(index > intersectObject.bone_index){
             position['x'] = position['x'] + skeleton.bones[index].position.x;
@@ -309,7 +326,6 @@ function intersectObjects( controller ) {
     if ( controller.userData.selected !== undefined ) return;
 
     const line = controller.getObjectByName( 'line' );
-    console.log(line);
     const intersections = getIntersections( controller );
 
     if ( intersections.length > 0 ) {
@@ -331,33 +347,22 @@ function intersectObjects( controller ) {
 }
 
 function cleanIntersected() {
-
     while ( intersected.length ) {
-
             const object = intersected.pop();
             object.material.emissive.r = 0;
-
     }
-
 }
 
 
 function animate() {
-    // requestAnimationFrame( animate );
-    // renderer.render( scene, camera );
-    
-    // getIntersections(controller1);
-
     renderer.setAnimationLoop( render );
 }
 
 function render() {
-
     cleanIntersected();
 
     intersectObjects( controller1 );
     intersectObjects( controller2 );
 
     renderer.render( scene, camera );
-
 }
